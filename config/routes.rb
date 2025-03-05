@@ -6,4 +6,5 @@ Rails.application.routes.draw do
   # root "articles#index"
 
   root "photos#index"
+  resources :users, only: [:index, :show]
 end

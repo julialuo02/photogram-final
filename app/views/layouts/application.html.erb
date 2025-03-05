@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Photogram Final</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-  </head>
+<head>
+  <title>Photogram</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-  <body>
-    <%= yield %>
-  </body>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+</head>
+<body>
+
+  <nav>
+    <ul>
+      <li><%= link_to "All users", users_path %></li>
+      <li><%= link_to "Photos", photos_path %></li>
+
+      <% if user_signed_in? %>
+        <li><%= link_to "Sign Out", destroy_user_session_path, method: :delete %></li>
+        <li><%= link_to "Edit Profile", edit_user_registration_path %></li>
+      <% else %>
+        <li><%= link_to "Sign In", new_user_session_path %></li>
+        <li><%= link_to "Sign Up", new_user_registration_path %></li>
+      <% end %>
+    </ul>
+  </nav>
+
+  <% if flash[:notice] %>
+    <p class="flash notice"><%= flash[:notice] %></p>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <p class="flash alert"><%= flash[:alert] %></p>
+  <% end %>
+
+  <%= yield %>
+
+</body>
 </html>

@@ -6,19 +6,23 @@
 #  status       :string
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  recipient_id :integer
-#  sender_id    :integer
+#  recipient_id :bigint
+#  sender_id    :bigint
+#
+# Indexes
+#
+#  index_follow_requests_on_recipient_id  (recipient_id)
+#  index_follow_requests_on_sender_id     (sender_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (recipient_id => users.id)
+#  fk_rails_...  (sender_id => users.id)
 #
 class FollowRequest < ApplicationRecord
-  belongs_to :sender, class_name: "User"
-  belongs_to :recipient, class_name: "User"
+  belongs_to :sender, class_name: "User", foreign_key: "sender_id"
+  belongs_to :recipient, class_name: "User", foreign_key: "recipient_id"
 
-  before_create :set_initial_status
-
-  private
-
-  def set_initial_status
-    self.status = recipient.private? ? "pending" : "accepted"
-  end
+  validates :sender_id, presence: true
+  validates :recipient_id, presence: true, uniqueness: { scope: :sender_id }
 end
-

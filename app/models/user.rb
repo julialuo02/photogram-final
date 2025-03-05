@@ -3,12 +3,15 @@
 # Table name: users
 #
 #  id                     :bigint           not null, primary key
+#  comments_count         :integer
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default(""), not null
-#  private                :boolean          default(FALSE)
+#  likes_count            :integer
+#  private                :boolean
 #  remember_created_at    :datetime
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
+#  username               :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #
@@ -22,20 +25,13 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-
-  # Follow Requests Associations
+  has_many :photos, foreign_key: "owner_id", dependent: :destroy
+  has_many :comments, foreign_key: "author_id", dependent: :destroy
+  has_many :likes, foreign_key: "fan_id", dependent: :destroy
   has_many :sent_follow_requests, class_name: "FollowRequest", foreign_key: "sender_id", dependent: :destroy
   has_many :received_follow_requests, class_name: "FollowRequest", foreign_key: "recipient_id", dependent: :destroy
-
-  # Followers and Following (Only accepted follow requests count)
-  has_many :followers, -> { where(follow_requests: { status: "accepted" }) }, through: :received_follow_requests, source: :sender
-  has_many :following, -> { where(follow_requests: { status: "accepted" }) }, through: :sent_follow_requests, source: :recipient
-
-  # Ensure username uniqueness
+  has_many :following, -> { where(follow_requests: { status: 'accepted' }) }, through: :sent_follow_requests, source: :recipient
+  has_many :liked_photos, through: :likes, source: :photo
+  has_many :followers, -> { where(follow_requests: { status: 'accepted' }) }, through: :received_follow_requests, source: :sender
   validates :username, presence: true, uniqueness: true
-
-  # Check if user is private
-  def private?
-    self.private
-  end
 end
